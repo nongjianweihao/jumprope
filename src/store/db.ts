@@ -37,9 +37,9 @@ export class AppDB extends Dexie {
       rankExams: 'id, studentId, date',
       lessonPackages: 'id, studentId, purchasedAt',
       payments: 'id, studentId, paidAt',
-      drills: 'id, stage, [stage+name]',
-      games: 'id, stage, [stage+name]',
-      plans: 'id, stage, weeks, name'
+      drills: 'id, name, stage, *qualities',
+      games: 'id, name, stage, *qualities',
+      plans: 'id, name, stage, weeks'
     });
   }
 }
