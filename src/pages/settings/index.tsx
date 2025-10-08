@@ -22,9 +22,10 @@ export default function SettingsIndex() {
     }
   };
 
-  const libInit = getLibrary();
-  const [thresholdsInput, setThresholdsInput] = useState(libInit.speed_rank_thresholds.join(','));
-  const [movesJson, setMovesJson] = useState(JSON.stringify(libInit.rank_moves, null, 2));
+  const [library, setLibrary] = useState(() => getLibrary());
+  const [thresholdsInput, setThresholdsInput] = useState(library.speed_rank_thresholds.join(','));
+  const [movesJson, setMovesJson] = useState(JSON.stringify(library.rank_moves, null, 2));
+  const [pathJson, setPathJson] = useState(JSON.stringify(library.warrior_path ?? [], null, 2));
   const [libMsg, setLibMsg] = useState('');
 
   const handleSaveLibrary = () => {
@@ -44,12 +45,24 @@ export default function SettingsIndex() {
         }
       }
 
-      saveLibrary({
-        ...libInit,
+      const warriorPath = JSON.parse(pathJson);
+      if (!Array.isArray(warriorPath)) {
+        throw new Error('warrior_path 必须是数组');
+      }
+
+      const nextLibrary = {
+        ...library,
         speed_rank_thresholds: thresholds,
-        rank_moves: moves
-      });
-      setLibMsg('已保存公共库（阈值与花样）。返回上课面板即可使用新配置。');
+        rank_moves: moves,
+        warrior_path: warriorPath
+      };
+
+      saveLibrary(nextLibrary);
+      setLibrary(nextLibrary);
+      setThresholdsInput(thresholds.join(','));
+      setMovesJson(JSON.stringify(moves, null, 2));
+      setPathJson(JSON.stringify(warriorPath, null, 2));
+      setLibMsg('已保存公共库（段位阈值 / 花样库 / 勇士路径）。返回上课面板即可使用新配置。');
     } catch (e) {
       setLibMsg((e as Error).message);
     }
@@ -100,6 +113,16 @@ export default function SettingsIndex() {
             onChange={(e) => setMovesJson(e.target.value)}
             className="mt-1 h-48 w-full rounded-2xl border border-slate-200 p-3 font-mono text-xs"
             placeholder='[{"id":"move-l4-360","rank":4,"name":"转身360°前后侧甩直摇跳"}]'
+          />
+        </label>
+
+        <label className="block text-sm font-medium">
+          勇士路径（JSON 数组）
+          <textarea
+            value={pathJson}
+            onChange={(e) => setPathJson(e.target.value)}
+            className="mt-1 h-48 w-full rounded-2xl border border-slate-200 p-3 font-mono text-xs"
+            placeholder='[{"id":"path-1","rank":1,"title":"新手训练营","moveIds":[],"points":50}]'
           />
         </label>
 

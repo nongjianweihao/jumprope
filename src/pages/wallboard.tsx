@@ -5,11 +5,17 @@ import { RankBadge } from '../components/RankBadge';
 import { Leaderboard } from '../components/Leaderboard';
 import { SpeedBoard } from '../components/SpeedBoard';
 import { HighlightsMarquee } from '../components/HighlightsMarquee';
+import { WarriorPathCard } from '../components/WarriorPathCard';
 import { db } from '../store/db';
-import type { SessionRecord } from '../types/models';
+import { getWarriorPath } from '../store/publicLibrary';
+import { studentsRepo } from '../store/repositories/studentsRepo';
+import type { SessionRecord, Student } from '../types/models';
 
 export default function Wallboard() {
   const [latest, setLatest] = useState<SessionRecord | undefined>();
+  const [featuredStudent, setFeaturedStudent] = useState<Student | undefined>();
+  const warriorPath = getWarriorPath();
+  const fallbackRank = warriorPath.length ? Math.min(warriorPath[warriorPath.length - 1].rank, 5) : 1;
 
   useEffect(() => {
     let active = true;
@@ -23,6 +29,17 @@ export default function Wallboard() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!latest || !latest.attendance?.length) return;
+    const target = latest.attendance.find((item) => item.present) ?? latest.attendance[0];
+    if (!target) return;
+    studentsRepo.get(target.studentId).then((student) => {
+      if (student) {
+        setFeaturedStudent(student);
+      }
+    });
+  }, [latest]);
 
   const highlights = latest?.highlights && latest.highlights.length > 0 ? latest.highlights : ['等待本节高光...'];
   const slides = [
@@ -70,10 +87,25 @@ export default function Wallboard() {
           />
         </div>
       </section>
-      <footer className="mt-6 grid grid-cols-9 gap-2">
-        {Array.from({ length: 9 }).map((_, index) => (
-          <RankBadge key={index} rank={index + 1} />
-        ))}
+      <footer className="mt-6 grid gap-4 lg:grid-cols-2">
+        <WarriorPathCard
+          student={
+            featuredStudent ?? {
+              id: 'wallboard-demo',
+              name: '勇士示例',
+              currentRank: fallbackRank
+            }
+          }
+          path={warriorPath}
+        />
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+          <h3 className="text-sm font-semibold text-white/80">段位九宫格</h3>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {Array.from({ length: 9 }).map((_, index) => (
+              <RankBadge key={index} rank={index + 1} />
+            ))}
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -11,12 +11,16 @@ import { RadarChart } from '../../components/RadarChart';
 import { ExportPdfButton } from '../../components/ExportPdfButton';
 import { FinanceCards } from '../../components/FinanceCards';
 import { nanoid } from '../../utils/id';
+import { getLibrary } from '../../store/publicLibrary';
+import { WarriorPathCard } from '../../components/WarriorPathCard';
+import { QuestTracker } from '../../components/QuestTracker';
 
 export default function StudentProfile() {
   const params = useParams();
   const [student, setStudent] = useState<Student | undefined>();
   const [tests, setTests] = useState<FitnessTestResult[]>([]);
   const [wallet, setWallet] = useState<LessonWallet | undefined>();
+  const [libraryVersion, setLibraryVersion] = useState(0);
 
   useEffect(() => {
     if (!params.id) return;
@@ -25,7 +29,20 @@ export default function StudentProfile() {
     billingRepo.wallet(params.id).then(setWallet);
   }, [params.id]);
 
-  const radar = tests.at(-1)?.radar ?? {
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'public_library') {
+        setLibraryVersion((value) => value + 1);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  const lastTest = tests.length ? tests[tests.length - 1] : undefined;
+  const radar = lastTest?.radar ?? {
     speed: 65,
     power: 62,
     endurance: 70,
@@ -44,6 +61,17 @@ export default function StudentProfile() {
     });
     return base;
   }, [radar]);
+
+  const library = useMemo(() => getLibrary(), [libraryVersion]);
+  const warriorPath = library.warrior_path ?? [];
+  const questInitial = useMemo(() => {
+    const currentRank = student?.currentRank ?? 0;
+    return [
+      { id: 'quest-1', title: '完成一段花样', desc: '走出新手村', done: currentRank >= 1 },
+      { id: 'quest-2', title: '六维测试达 90 分', desc: '六边形勇士', done: currentRank >= 4 },
+      { id: 'quest-3', title: '通过七段花样', desc: '竞技挑战', done: currentRank >= 7 }
+    ];
+  }, [student?.currentRank]);
 
   if (!student) {
     return <div className="text-sm text-slate-500">正在加载学员档案...</div>;
@@ -96,7 +124,11 @@ export default function StudentProfile() {
               + 首购20节/¥3600
             </button>
           </div>
-          <ExportPdfButton target="#report-root" fileName={({ name }) => `${name ?? student.name}-成长报告.pdf`} student={student} />
+          <ExportPdfButton
+            target="#report-root"
+            fileName={(options) => `${options?.name ?? student.name}-成长报告.pdf`}
+            student={student}
+          />
         </div>
       </section>
 
@@ -137,6 +169,11 @@ export default function StudentProfile() {
             }}
           />
         </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <WarriorPathCard student={student} path={warriorPath} />
+        <QuestTracker initial={questInitial} />
       </section>
     </div>
   );
