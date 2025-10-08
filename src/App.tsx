@@ -1,7 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { LayoutShell } from './components/LayoutShell';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { useAuthStore } from './store/authStore';
 
+const Login = lazy(() => import('./pages/login'));
 const ClassesIndex = lazy(() => import('./pages/classes/index'));
 const ClassNew = lazy(() => import('./pages/classes/new'));
 const ClassDetail = lazy(() => import('./pages/classes/[id]'));
@@ -22,9 +25,18 @@ const TrainingGames = lazy(() => import('./pages/training/games'));
 const TrainingPlans = lazy(() => import('./pages/training/plans'));
 
 function AppRoutes() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return (
     <Routes>
-      <Route element={<LayoutShell />}>
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
+      <Route
+        element={
+          <ProtectedRoute>
+            <LayoutShell />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<ClassesIndex />} />
         <Route path="classes">
           <Route index element={<ClassesIndex />} />

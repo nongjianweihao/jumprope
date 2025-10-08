@@ -1,8 +1,11 @@
 node_modules/
 dist/
+dev-dist/
 .vite/
 .DS_Store
 npm-debug.log*
 *.tsbuildinfo
+vite.config.d.ts
+vite.config.js
 
 
