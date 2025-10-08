@@ -1,0 +1,21 @@
+{
+  "speed_rank_thresholds": [60, 70, 80, 100, 110, 120, 150, 160, 170],
+  "rank_moves": [
+    { "id": "move-l1-1", "rank": 1, "name": "基础单摇" },
+    { "id": "move-l2-1", "rank": 2, "name": "交叉跳" }
+  ],
+  "warrior_path": [
+    { "id": "path-1", "rank": 1, "title": "节奏新兵营", "moveIds": ["move-l1-1"], "points": 50 }
+  ],
+  "point_rules": [
+    { "id": "rule-att", "type": "attendance", "label": "出勤", "value": 1 },
+    { "id": "rule-pr", "type": "pr", "label": "速度PR", "value": 5 },
+    { "id": "rule-fs", "type": "freestyle_pass", "label": "花样通关", "value": 3 },
+    { "id": "rule-quest", "type": "quest_complete", "label": "勇士任务", "value": 8 }
+  ],
+  "badges": [
+    { "id": "badge-bronze", "name": "青铜勇士", "points": 30, "icon": "🥉", "desc": "累计 30 GP" },
+    { "id": "badge-silver", "name": "白银斗士", "points": 80, "icon": "🥈", "desc": "累计 80 GP" },
+    { "id": "badge-gold", "name": "黄金战神", "points": 150, "icon": "🥇", "desc": "累计 150 GP" }
+  ]
+}

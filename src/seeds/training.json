@@ -1,0 +1,269 @@
+{
+  "drills": [
+    {
+      "id": "d-basic-001",
+      "name": "基础单摇节奏跳",
+      "stage": "BASIC",
+      "qualities": ["coordination", "endurance"],
+      "difficulty": 1,
+      "durationMin": 8,
+      "description": "强调节奏与放松，适合零基础学员。",
+      "cues": ["手肘贴近身体", "脚尖轻点"],
+      "progressions": ["尝试闭眼数拍", "提高节奏至每分钟120"],
+      "gameable": true
+    },
+    {
+      "id": "d-basic-002",
+      "name": "步伐协调练习",
+      "stage": "BASIC",
+      "qualities": ["coordination", "agility"],
+      "difficulty": 1,
+      "durationMin": 6,
+      "description": "交替脚尖点地，建立节奏记忆。"
+    },
+    {
+      "id": "d-basic-003",
+      "name": "踝关节弹跳",
+      "stage": "BASIC",
+      "qualities": ["power", "balance"],
+      "difficulty": 2,
+      "durationMin": 5,
+      "equipment": ["平衡垫"],
+      "description": "强化踝小腿力量，为速度打基础。"
+    },
+    {
+      "id": "d-improve-001",
+      "name": "单摇提速间歇",
+      "stage": "IMPROVE",
+      "qualities": ["speed", "endurance"],
+      "difficulty": 2,
+      "durationMin": 10,
+      "description": "20秒冲刺+20秒恢复，循环4-6组。"
+    },
+    {
+      "id": "d-improve-002",
+      "name": "交叉步伐训练",
+      "stage": "IMPROVE",
+      "qualities": ["coordination", "agility"],
+      "difficulty": 3,
+      "durationMin": 8,
+      "description": "结合侧向移动与交叉步，提升身体控制。"
+    },
+    {
+      "id": "d-improve-003",
+      "name": "核心稳定支撑",
+      "stage": "IMPROVE",
+      "qualities": ["core", "balance"],
+      "difficulty": 2,
+      "durationMin": 6,
+      "description": "平板支撑+侧支撑组合，保持呼吸稳定。"
+    },
+    {
+      "id": "d-elite-001",
+      "name": "双摇爆发阶梯",
+      "stage": "ELITE",
+      "qualities": ["power", "speed"],
+      "difficulty": 4,
+      "durationMin": 12,
+      "description": "10-20-30次双摇阶梯递增，间歇恢复。",
+      "progressions": ["加入负重沙袋", "落地保持前脚掌"]
+    },
+    {
+      "id": "d-elite-002",
+      "name": "综合转体组合",
+      "stage": "ELITE",
+      "qualities": ["coordination", "agility"],
+      "difficulty": 4,
+      "durationMin": 10,
+      "description": "结合转体、交叉与节奏变化，提升花样衔接。"
+    },
+    {
+      "id": "d-elite-003",
+      "name": "力量循环训练",
+      "stage": "ELITE",
+      "qualities": ["power", "endurance"],
+      "difficulty": 3,
+      "durationMin": 15,
+      "equipment": ["药球", "阻力带"],
+      "description": "跳箱、药球砸地、阻力跑组合循环。"
+    },
+    {
+      "id": "d-compete-001",
+      "name": "比赛节奏模拟",
+      "stage": "COMPETE",
+      "qualities": ["speed", "coordination"],
+      "difficulty": 5,
+      "durationMin": 15,
+      "description": "全程按照比赛节奏执行，加入裁判口令。"
+    },
+    {
+      "id": "d-compete-002",
+      "name": "耐力极限冲刺",
+      "stage": "COMPETE",
+      "qualities": ["endurance", "core"],
+      "difficulty": 5,
+      "durationMin": 12,
+      "description": "连续3组90秒高强度，配合心率监测。"
+    },
+    {
+      "id": "d-compete-003",
+      "name": "花样考核演练",
+      "stage": "COMPETE",
+      "qualities": ["coordination", "accuracy"],
+      "difficulty": 4,
+      "durationMin": 18,
+      "description": "按照段位考核流程执行，记录失误点。"
+    }
+  ],
+  "games": [
+    {
+      "id": "g-basic-001",
+      "name": "节奏音乐灯",
+      "stage": "BASIC",
+      "qualities": ["coordination"],
+      "minPlayers": 4,
+      "maxPlayers": 12,
+      "durationMin": 8,
+      "intensity": "low",
+      "rules": "跟随音乐节拍跳绳，灯灭需停下。",
+      "scoring": "坚持到最后者获胜"
+    },
+    {
+      "id": "g-basic-002",
+      "name": "伙伴追逐跳",
+      "stage": "BASIC",
+      "qualities": ["agility", "coordination"],
+      "minPlayers": 4,
+      "durationMin": 6,
+      "intensity": "mid",
+      "rules": "两人一组，一人跳一人追，30秒换位。"
+    },
+    {
+      "id": "g-improve-001",
+      "name": "节奏踩格赛",
+      "stage": "IMPROVE",
+      "qualities": ["coordination", "agility"],
+      "minPlayers": 6,
+      "durationMin": 10,
+      "intensity": "mid",
+      "rules": "指定格子落点，错位需重来。"
+    },
+    {
+      "id": "g-improve-002",
+      "name": "速度接力",
+      "stage": "IMPROVE",
+      "qualities": ["speed", "endurance"],
+      "minPlayers": 8,
+      "durationMin": 12,
+      "intensity": "high",
+      "rules": "4人一队，每人30秒冲刺。",
+      "scoring": "累计次数最高队获胜"
+    },
+    {
+      "id": "g-elite-001",
+      "name": "双摇对抗赛",
+      "stage": "ELITE",
+      "qualities": ["speed", "power"],
+      "minPlayers": 4,
+      "durationMin": 10,
+      "intensity": "high",
+      "rules": "面对面对跳双摇，失误先出局。"
+    },
+    {
+      "id": "g-elite-002",
+      "name": "花样接龙",
+      "stage": "ELITE",
+      "qualities": ["coordination", "agility"],
+      "minPlayers": 6,
+      "durationMin": 12,
+      "intensity": "mid",
+      "rules": "每人新增一个动作，后续必须记忆。"
+    },
+    {
+      "id": "g-compete-001",
+      "name": "模拟裁判挑战",
+      "stage": "COMPETE",
+      "qualities": ["accuracy", "coordination"],
+      "minPlayers": 6,
+      "durationMin": 15,
+      "intensity": "mid",
+      "rules": "裁判口令变化，选手需即时响应。",
+      "safetyNotes": "注意场地分区，避免绊绳"
+    },
+    {
+      "id": "g-compete-002",
+      "name": "战术对抗赛",
+      "stage": "COMPETE",
+      "qualities": ["coordination", "agility"],
+      "minPlayers": 8,
+      "durationMin": 18,
+      "intensity": "high",
+      "rules": "两队制定战术完成花样组合。"
+    }
+  ],
+  "plans": [
+    {
+      "id": "p-basic-4w",
+      "name": "零基础·4周入门",
+      "stage": "BASIC",
+      "weeks": 4,
+      "createdAt": "2024-12-01T00:00:00.000Z",
+      "schedule": [
+        {
+          "weekIndex": 1,
+          "theme": "建立节奏",
+          "blocks": [
+            { "title": "热身激活", "durationMin": 10, "notes": "足踝/髋/肩激活" },
+            { "title": "专项技能", "durationMin": 20, "drillIds": ["d-basic-001", "d-basic-002"] },
+            { "title": "体能素质", "durationMin": 10, "drillIds": ["d-basic-003"] },
+            { "title": "游戏挑战", "durationMin": 10, "gameIds": ["g-basic-001"] },
+            { "title": "放松反馈", "durationMin": 5, "notes": "关注呼吸放缓" }
+          ]
+        },
+        {
+          "weekIndex": 2,
+          "theme": "稳定节奏",
+          "blocks": [
+            { "title": "热身激活", "durationMin": 10 },
+            { "title": "专项技能", "durationMin": 20, "drillIds": ["d-basic-001", "d-basic-003"] },
+            { "title": "体能素质", "durationMin": 12, "drillIds": ["d-basic-003"] },
+            { "title": "游戏挑战", "durationMin": 10, "gameIds": ["g-basic-002"] },
+            { "title": "放松反馈", "durationMin": 5 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p-improve-6w",
+      "name": "专项提升·6周强化",
+      "stage": "IMPROVE",
+      "weeks": 6,
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "remark": "针对已经具备基础节奏的班级",
+      "schedule": [
+        {
+          "weekIndex": 1,
+          "theme": "速度觉醒",
+          "blocks": [
+            { "title": "热身激活", "durationMin": 12, "notes": "加入灵敏梯" },
+            { "title": "专项技能", "durationMin": 22, "drillIds": ["d-improve-001", "d-improve-002"] },
+            { "title": "体能素质", "durationMin": 12, "drillIds": ["d-improve-003"] },
+            { "title": "游戏挑战", "durationMin": 10, "gameIds": ["g-improve-002"] },
+            { "title": "放松反馈", "durationMin": 6 }
+          ]
+        },
+        {
+          "weekIndex": 2,
+          "theme": "花样衔接",
+          "blocks": [
+            { "title": "热身激活", "durationMin": 12 },
+            { "title": "专项技能", "durationMin": 24, "drillIds": ["d-improve-002", "d-elite-002"] },
+            { "title": "体能素质", "durationMin": 14, "drillIds": ["d-improve-001"] },
+            { "title": "游戏挑战", "durationMin": 10, "gameIds": ["g-improve-001"] },
+            { "title": "放松反馈", "durationMin": 6 }
+          ]
+        }
+      ]
+    }
+  ]
+}

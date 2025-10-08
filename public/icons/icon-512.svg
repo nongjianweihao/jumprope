@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>Jump Rope Energy Icon</title>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A6CF7" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="80" fill="url(#grad)" />
+  <g fill="#fff" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M160 256c0-60 48-108 108-108s108 48 108 108-48 108-108 108" fill="none" />
+    <path d="M160 256c0 74 58 134 132 134" fill="none" opacity="0.5" />
+    <path d="M128 208c-32 0-58 26-58 58 0 74 90 154 198 154s198-80 198-154c0-32-26-58-58-58" fill="none" />
+    <circle cx="160" cy="192" r="34" />
+    <circle cx="352" cy="192" r="34" />
+  </g>
+</svg>

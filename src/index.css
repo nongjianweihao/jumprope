@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #4a6cf7;
+  --brand-secondary: #a855f7;
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+  --brand-danger: #ef4444;
+  --panel: #0b1220;
+  color-scheme: light;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+a {
+  @apply text-brand-primary;
+}
+
+.dark {
+  color-scheme: dark;
+}
