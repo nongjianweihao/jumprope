@@ -13,7 +13,9 @@ import { FinanceCards } from '../../components/FinanceCards';
 import { nanoid } from '../../utils/id';
 import { getLibrary } from '../../store/publicLibrary';
 import { WarriorPathCard } from '../../components/WarriorPathCard';
-import { QuestTracker } from '../../components/QuestTracker';
+import { QuestTracker, type Quest } from '../../components/QuestTracker';
+import { BadgeShowcase } from '../../components/BadgeShowcase';
+import { addPoints, getBadgeByPoints } from '../../utils/points';
 
 export default function StudentProfile() {
   const params = useParams();
@@ -72,6 +74,57 @@ export default function StudentProfile() {
       { id: 'quest-3', title: '通过七段花样', desc: '竞技挑战', done: currentRank >= 7 }
     ];
   }, [student?.currentRank]);
+  const [quests, setQuests] = useState<Quest[]>(questInitial);
+
+  useEffect(() => {
+    setQuests(questInitial);
+  }, [questInitial]);
+
+  const badge = useMemo(() => getBadgeByPoints(student?.pointsTotal ?? 0), [student?.pointsTotal, libraryVersion]);
+
+  const pointsSeries = useMemo(() => {
+    const total = student?.pointsTotal ?? 0;
+    const baseline = Math.max(0, Math.floor(total * 0.4));
+    const midpoint = Math.max(baseline, Math.floor(total * 0.7));
+    const formatDate = (monthsAgo: number) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - monthsAgo);
+      return date.toISOString().slice(0, 10);
+    };
+    return [
+      { date: formatDate(2), score: baseline },
+      { date: formatDate(1), score: midpoint },
+      { date: formatDate(0), score: total }
+    ];
+  }, [student?.pointsTotal]);
+
+  const handleQuestChange = async (next: Quest[]) => {
+    if (!student) return;
+    const previous = new Map(quests.map((quest) => [quest.id, quest.done]));
+    const newlyCompleted = next.filter((quest) => quest.done && !previous.get(quest.id));
+    setQuests(next);
+    if (!newlyCompleted.length) return;
+
+    const record = await studentsRepo.get(student.id);
+    if (!record) return;
+
+    const updated: Student = { ...record };
+    for (const quest of newlyCompleted) {
+      const before = updated.pointsTotal ?? 0;
+      const after = addPoints(before, 'quest_complete');
+      updated.pointsTotal = after;
+      const previousBadge = getBadgeByPoints(before);
+      const nextBadge = getBadgeByPoints(after);
+      if (nextBadge && nextBadge.id && nextBadge.id !== previousBadge?.id && nextBadge.name) {
+        const badgeSet = new Set(updated.badges ?? []);
+        badgeSet.add(nextBadge.name);
+        updated.badges = Array.from(badgeSet);
+      }
+    }
+
+    await studentsRepo.upsert(updated);
+    setStudent(updated);
+  };
 
   if (!student) {
     return <div className="text-sm text-slate-500">正在加载学员档案...</div>;
@@ -172,8 +225,24 @@ export default function StudentProfile() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <ProgressChart title="成长积分曲线" series={pointsSeries} unit="GP" />
+        </div>
+        <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <BadgeShowcase
+            name={badge?.name ?? '暂无徽章'}
+            desc={badge?.desc ?? '继续努力解锁下一枚勋章'}
+            icon={badge?.icon ?? '⭐'}
+          />
+          <div className="text-xs text-slate-500">
+            已解锁：{(student.badges ?? []).length ? (student.badges ?? []).join('、') : '暂未解锁勋章'}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
         <WarriorPathCard student={student} path={warriorPath} />
-        <QuestTracker initial={questInitial} />
+        <QuestTracker initial={quests} onChange={handleQuestChange} />
       </section>
     </div>
   );

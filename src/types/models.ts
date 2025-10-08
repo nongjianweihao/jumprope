@@ -130,7 +130,7 @@ export interface SessionRecord {
   pointEvents?: PointEvent[];
 }
 
-export type PointEventType = 'attendance' | 'pr' | 'freestyle_pass' | 'coach_bonus';
+export type PointEventType = 'attendance' | 'pr' | 'freestyle_pass' | 'coach_bonus' | 'quest_complete';
 
 export interface PointEvent {
   id: ID;

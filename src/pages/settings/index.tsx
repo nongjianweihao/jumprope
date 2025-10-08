@@ -26,6 +26,8 @@ export default function SettingsIndex() {
   const [thresholdsInput, setThresholdsInput] = useState(library.speed_rank_thresholds.join(','));
   const [movesJson, setMovesJson] = useState(JSON.stringify(library.rank_moves, null, 2));
   const [pathJson, setPathJson] = useState(JSON.stringify(library.warrior_path ?? [], null, 2));
+  const [pointRulesJson, setPointRulesJson] = useState(JSON.stringify(library.point_rules ?? [], null, 2));
+  const [badgesJson, setBadgesJson] = useState(JSON.stringify(library.badges ?? [], null, 2));
   const [libMsg, setLibMsg] = useState('');
 
   const handleSaveLibrary = () => {
@@ -50,11 +52,23 @@ export default function SettingsIndex() {
         throw new Error('warrior_path 必须是数组');
       }
 
+      const pointRules = JSON.parse(pointRulesJson);
+      if (!Array.isArray(pointRules)) {
+        throw new Error('point_rules 必须是数组');
+      }
+
+      const badges = JSON.parse(badgesJson);
+      if (!Array.isArray(badges)) {
+        throw new Error('badges 必须是数组');
+      }
+
       const nextLibrary = {
         ...library,
         speed_rank_thresholds: thresholds,
         rank_moves: moves,
-        warrior_path: warriorPath
+        warrior_path: warriorPath,
+        point_rules: pointRules,
+        badges
       };
 
       saveLibrary(nextLibrary);
@@ -62,7 +76,9 @@ export default function SettingsIndex() {
       setThresholdsInput(thresholds.join(','));
       setMovesJson(JSON.stringify(moves, null, 2));
       setPathJson(JSON.stringify(warriorPath, null, 2));
-      setLibMsg('已保存公共库（段位阈值 / 花样库 / 勇士路径）。返回上课面板即可使用新配置。');
+      setPointRulesJson(JSON.stringify(pointRules, null, 2));
+      setBadgesJson(JSON.stringify(badges, null, 2));
+      setLibMsg('已保存公共库（段位阈值 / 花样库 / 勇士路径 / 积分规则 / 徽章库）。返回上课面板即可使用新配置。');
     } catch (e) {
       setLibMsg((e as Error).message);
     }
@@ -123,6 +139,26 @@ export default function SettingsIndex() {
             onChange={(e) => setPathJson(e.target.value)}
             className="mt-1 h-48 w-full rounded-2xl border border-slate-200 p-3 font-mono text-xs"
             placeholder='[{"id":"path-1","rank":1,"title":"新手训练营","moveIds":[],"points":50}]'
+          />
+        </label>
+
+        <label className="block text-sm font-medium">
+          积分规则（JSON 数组）
+          <textarea
+            value={pointRulesJson}
+            onChange={(e) => setPointRulesJson(e.target.value)}
+            className="mt-1 h-40 w-full rounded-2xl border border-slate-200 p-3 font-mono text-xs"
+            placeholder='[{"id":"rule-pr","type":"pr","label":"速度PR","value":5}]'
+          />
+        </label>
+
+        <label className="block text-sm font-medium">
+          徽章库（JSON 数组）
+          <textarea
+            value={badgesJson}
+            onChange={(e) => setBadgesJson(e.target.value)}
+            className="mt-1 h-48 w-full rounded-2xl border border-slate-200 p-3 font-mono text-xs"
+            placeholder='[{"id":"badge-bronze","name":"青铜勇士","points":30,"icon":"🥉"}]'
           />
         </label>
 

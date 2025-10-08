@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EnergyBar } from '../components/EnergyBar';
 import { WallboardCarousel } from '../components/WallboardCarousel';
 import { RankBadge } from '../components/RankBadge';
@@ -14,6 +14,8 @@ import type { SessionRecord, Student } from '../types/models';
 export default function Wallboard() {
   const [latest, setLatest] = useState<SessionRecord | undefined>();
   const [featuredStudent, setFeaturedStudent] = useState<Student | undefined>();
+  const [leaders, setLeaders] = useState<Array<{ id: string; name: string; points: number }>>([]);
+  const [studentsMap, setStudentsMap] = useState<Record<string, Student>>({});
   const warriorPath = getWarriorPath();
   const fallbackRank = warriorPath.length ? Math.min(warriorPath[warriorPath.length - 1].rank, 5) : 1;
 
@@ -41,7 +43,40 @@ export default function Wallboard() {
     });
   }, [latest]);
 
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const list = await studentsRepo.list();
+      if (!active) return;
+      const map = Object.fromEntries(list.map((student) => [student.id, student]));
+      setStudentsMap(map);
+      setLeaders(
+        list
+          .map((student) => ({ id: student.id, name: student.name, points: student.pointsTotal ?? 0 }))
+          .sort((a, b) => b.points - a.points)
+          .slice(0, 8)
+      );
+    })();
+    return () => {
+      active = false;
+    };
+  }, [latest]);
+
   const highlights = latest?.highlights && latest.highlights.length > 0 ? latest.highlights : ['等待本节高光...'];
+  const speedItems = useMemo(() => {
+    if (!latest?.speed?.length) return [] as Array<{ id: string; name: string; reps: number; isPr?: boolean }>;
+    const singles = latest.speed.filter((row) => row.window === 30 && row.mode === 'single');
+    return singles
+      .slice()
+      .sort((a, b) => b.reps - a.reps)
+      .slice(0, 8)
+      .map((row) => ({
+        id: row.id,
+        name: studentsMap[row.studentId]?.name ?? '学员',
+        reps: row.reps,
+        isPr: studentsMap[row.studentId]?.best30Single === row.reps
+      }));
+  }, [latest, studentsMap]);
   const slides = [
     { id: 'mission', title: '今日任务 · 激活-学习-巩固-挑战-恢复', description: '热身激活 → 专项技能 → 花样进阶 → 游戏挑战 → 放松反馈' },
     { id: 'points', title: '积分榜', description: 'Top 8 勇士积分实时更新，保持冲刺！' },
@@ -71,19 +106,27 @@ export default function Wallboard() {
         </div>
         <div className="space-y-4">
           <Leaderboard
-            items={[
-              { id: '1', name: '林小勇', points: 126 },
-              { id: '2', name: '周小捷', points: 118 },
-              { id: '3', name: '王小燃', points: 112 }
-            ]}
+            items={
+              leaders.length
+                ? leaders
+                : [
+                    { id: 'placeholder-1', name: '勇士一号', points: 0 },
+                    { id: 'placeholder-2', name: '勇士二号', points: 0 },
+                    { id: 'placeholder-3', name: '勇士三号', points: 0 }
+                  ]
+            }
           />
           <SpeedBoard
             windowLabel="30s 单摇"
-            items={[
-              { id: '1', name: '林小勇', reps: 138, isPr: true },
-              { id: '2', name: '周小捷', reps: 130 },
-              { id: '3', name: '王小燃', reps: 128 }
-            ]}
+            items={
+              speedItems.length
+                ? speedItems
+                : [
+                    { id: 'speed-1', name: '勇士一号', reps: 0, isPr: false },
+                    { id: 'speed-2', name: '勇士二号', reps: 0, isPr: false },
+                    { id: 'speed-3', name: '勇士三号', reps: 0, isPr: false }
+                  ]
+            }
           />
         </div>
       </section>

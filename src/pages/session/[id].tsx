@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { classesRepo } from '../../store/repositories/classesRepo';
 import { studentsRepo } from '../../store/repositories/studentsRepo';
@@ -7,6 +7,8 @@ import type {
   AttendanceItem,
   ClassEntity,
   FreestyleChallengeRecord,
+  PointEvent,
+  PointEventType,
   RankMove,
   SessionRecord,
   SpeedRecord,
@@ -22,7 +24,10 @@ import { RankBadge } from '../../components/RankBadge';
 import { PointsTicker } from '../../components/PointsTicker';
 import { nanoid } from '../../utils/id';
 import { evalSpeedRank } from '../../utils/calc';
+import { addPoints, getBadgeByPoints } from '../../utils/points';
 import { getRankMoves } from '../../store/publicLibrary';
+
+type PendingPointEvent = Omit<PointEvent, 'sessionId'>;
 
 export default function SessionPanel() {
   const params = useParams();
@@ -34,6 +39,11 @@ export default function SessionPanel() {
   const [speeds, setSpeeds] = useState<SpeedRecord[]>([]);
   const [freestyle, setFreestyle] = useState<FreestyleChallengeRecord[]>([]);
   const [moves, setMoves] = useState<RankMove[]>([]);
+  const eventsRef = useRef<PendingPointEvent[]>([]);
+
+  const pushHighlight = (message: string) => {
+    setHighlights((prev) => (prev.includes(message) ? prev : [...prev, message]));
+  };
 
   useEffect(() => {
     if (!params.id) return;
@@ -58,79 +68,128 @@ export default function SessionPanel() {
     setMoves(getRankMoves());
   }, []);
 
-  const handleSpeed = async (records: SpeedRecord[]) => {
-    setSpeeds(records);
-    for (const r of records) {
-      if (r.window === 30 && r.mode === 'single') {
-        const studentRecord = await studentsRepo.get(r.studentId);
-        if (!studentRecord) continue;
-        const oldBest = studentRecord.best30Single ?? 0;
-        if (r.reps > oldBest) {
-          const updated: Student = {
-            ...studentRecord,
-            best30Single: r.reps,
-            pointsTotal: (studentRecord.pointsTotal ?? 0) + 5
-          };
-          const newRank = evalSpeedRank(r.reps);
-          if (!updated.currentRank || newRank > updated.currentRank) {
-            updated.currentRank = newRank;
-          }
-          await studentsRepo.upsert(updated);
-          setHighlights((prev) => Array.from(new Set([...prev, `30s 单摇 PR ${oldBest}→${r.reps}`])));
-          setPointDelta((prev) => prev + 5);
-          setStudents((prev) =>
-            prev.map((stu) => (stu.id === updated.id ? { ...stu, ...updated } : stu))
-          );
-        }
+  const awardPoints = async (
+    record: Student,
+    type: PointEventType,
+    options?: { highlight?: string; update?: Partial<Student>; reason?: string }
+  ) => {
+    const previousPoints = record.pointsTotal ?? 0;
+    const updated: Student = { ...record, ...options?.update };
+    const nextPoints = addPoints(previousPoints, type);
+    const delta = nextPoints - previousPoints;
+    updated.pointsTotal = nextPoints;
+
+    const previousBadge = getBadgeByPoints(previousPoints);
+    const nextBadge = getBadgeByPoints(nextPoints);
+    if (nextBadge && nextBadge.id && nextBadge.id !== previousBadge?.id && nextBadge.name) {
+      const badgeSet = new Set(updated.badges ?? record.badges ?? []);
+      badgeSet.add(nextBadge.name);
+      updated.badges = Array.from(badgeSet);
+    }
+
+    await studentsRepo.upsert(updated);
+    setStudents((prev) => prev.map((student) => (student.id === updated.id ? { ...student, ...updated } : student)));
+
+    if (options?.highlight) {
+      pushHighlight(options.highlight);
+    }
+    if (nextBadge && nextBadge.id && nextBadge.id !== previousBadge?.id) {
+      pushHighlight(`徽章解锁：${nextBadge.name}`);
+    }
+
+    if (delta !== 0) {
+      setPointDelta((prev) => prev + delta);
+    }
+
+    eventsRef.current = [
+      ...eventsRef.current,
+      {
+        id: nanoid(),
+        studentId: updated.id,
+        type,
+        points: delta,
+        reason: options?.reason ?? options?.highlight,
+        createdAt: new Date().toISOString()
       }
+    ];
+
+    return updated;
+  };
+
+  const handleSpeed = async (records: SpeedRecord[]) => {
+    if (!records.length) return;
+    setSpeeds((prev) => [...prev, ...records]);
+    for (const record of records) {
+      if (record.window !== 30 || record.mode !== 'single') continue;
+      const studentRecord = await studentsRepo.get(record.studentId);
+      if (!studentRecord) continue;
+      const oldBest = studentRecord.best30Single ?? 0;
+      if (record.reps <= oldBest) continue;
+      const newRank = evalSpeedRank(record.reps);
+      const nextRank = Math.max(studentRecord.currentRank ?? 0, newRank);
+      await awardPoints(studentRecord, 'pr', {
+        highlight: `30s 单摇 PR ${oldBest}→${record.reps}`,
+        update: { best30Single: record.reps, currentRank: nextRank },
+        reason: '速度 PR'
+      });
     }
   };
 
   const handleFreestyle = async (records: FreestyleChallengeRecord[]) => {
-    const prevMap = new Map(freestyle.map((item) => [item.id, item]));
-    setFreestyle(records);
-    for (const rec of records) {
-      if (!rec.passed) continue;
-      const previous = prevMap.get(rec.id);
-      if (previous?.passed) continue;
+    if (!records.length) return;
+    setFreestyle((prev) => {
+      const combined = [...prev];
+      for (const record of records) {
+        if (!combined.some((item) => item.id === record.id)) {
+          combined.push(record);
+        }
+      }
+      return combined;
+    });
 
-      const move = moves.find((m) => m.id === rec.moveId);
+    for (const record of records) {
+      if (!record.passed) continue;
+      const alreadyPassed = freestyle.some(
+        (item) => item.studentId === record.studentId && item.moveId === record.moveId && item.passed
+      );
+      if (alreadyPassed) continue;
+
+      const move = moves.find((item) => item.id === record.moveId);
       if (!move) continue;
-
-      const studentRecord = await studentsRepo.get(rec.studentId);
+      const studentRecord = await studentsRepo.get(record.studentId);
       if (!studentRecord) continue;
 
-      const before = studentRecord.currentRank ?? 0;
-      const after = move.rank > before ? move.rank : before;
-
-      const updated: Student = {
-        ...studentRecord,
-        currentRank: after,
-        pointsTotal: (studentRecord.pointsTotal ?? 0) + 3
-      };
-      await studentsRepo.upsert(updated);
-
-      setStudents((prev) => prev.map((s) => (s.id === updated.id ? { ...s, ...updated } : s)));
-      setHighlights((prev) =>
-        Array.from(
-          new Set([
-            ...prev,
-            `花样通关：L${move.rank} · ${move.name}` + (after > before ? `（段位↑ 到 L${after}）` : '')
-          ])
-        )
-      );
-      setPointDelta((prev) => prev + 3);
+      const beforeRank = studentRecord.currentRank ?? 0;
+      const afterRank = move.rank > beforeRank ? move.rank : beforeRank;
+      await awardPoints(studentRecord, 'freestyle_pass', {
+        highlight: `花样通关：L${move.rank} · ${move.name}${afterRank > beforeRank ? `（段位↑ 到 L${afterRank}）` : ''}`,
+        update: { currentRank: afterRank },
+        reason: '花样通关'
+      });
     }
   };
 
   const handleComment = async () => {
-    setHighlights((prev) => Array.from(new Set([...prev, '教练评语已同步'])));
+    pushHighlight('教练评语已同步');
   };
 
   const handleFinish = async () => {
     if (!params.id) return;
+    const sessionId = nanoid();
+    const attended = attendance.filter((item) => item.present);
+
+    for (const item of attended) {
+      const studentRecord = await studentsRepo.get(item.studentId);
+      if (!studentRecord) continue;
+      await awardPoints(studentRecord, 'attendance', { reason: '课堂出勤' });
+    }
+
+    if (attended.length) {
+      pushHighlight(`出勤积分已发放（${attended.length} 人）`);
+    }
+
     const session: SessionRecord = {
-      id: nanoid(),
+      id: sessionId,
       classId: params.id,
       date: new Date().toISOString(),
       attendance,
@@ -140,9 +199,12 @@ export default function SessionPanel() {
       closed: true,
       lessonConsume: 1,
       highlights,
-      pointEvents: []
+      pointEvents: eventsRef.current.map((event) => ({ ...event, sessionId }))
     };
+
     await sessionsRepo.upsert(session);
+    eventsRef.current = [];
+    setPointDelta(0);
     alert('结课成功，战报草稿已生成');
   };
 
@@ -157,7 +219,7 @@ export default function SessionPanel() {
             </h2>
           </div>
           <div className="w-80">
-            <EnergyBar value={attendance.length * 8} />
+            <EnergyBar value={attendance.filter((item) => item.present).length * 10} max={students.length * 10 || 100} />
           </div>
           <div className="text-xs text-slate-500">快捷键：S / F / N / E</div>
         </div>
@@ -170,10 +232,10 @@ export default function SessionPanel() {
             <div className="grid gap-4 md:grid-cols-2">
               <HighlightsCard highlights={highlights} />
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <h3 className="text-sm font-semibold text-slate-600">积分事件</h3>
+                <h3 className="text-sm font-semibold text-slate-600">成长积分</h3>
                 <div className="mt-3 flex items-center gap-2 text-2xl font-black text-brand-secondary">
                   <PointsTicker delta={pointDelta} />
-                  <span className="text-sm font-medium text-slate-500">今日累计</span>
+                  <span className="text-sm font-medium text-slate-500">今日累计 GP</span>
                 </div>
               </div>
             </div>
