@@ -68,7 +68,7 @@ export default function StudentProfile() {
             </div>
             <EnergyBar value={wallet?.remaining ?? 0} max={wallet ? wallet.totalPurchased : 100} />
           </div>
-          <ExportPdfButton target="#report-root" fileName={({ name }) => `${name ?? student.name}-成长报告.pdf`} student={student} />
+          <ExportPdfButton target="#report-root" fileName={(options) => `${options?.name ?? student?.name ?? 'student'}-成长报告.pdf`} student={student} />
         </div>
       </section>
 
