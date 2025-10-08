@@ -4,6 +4,7 @@ const links = [
   { to: '/classes', label: '班级' },
   { to: '/students', label: '学员' },
   { to: '/templates', label: '模板库' },
+  { to: '/training', label: '训练库' },
   { to: '/session/demo', label: '上课面板' },
   { to: '/wallboard', label: '壁板模式' },
   { to: '/assessments', label: '测评' },

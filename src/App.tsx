@@ -16,6 +16,10 @@ const FinanceIndex = lazy(() => import('./pages/finance/index'));
 const ReportPreview = lazy(() => import('./pages/reports/[studentId]'));
 const SettingsIndex = lazy(() => import('./pages/settings/index'));
 const Wallboard = lazy(() => import('./pages/wallboard'));
+const TrainingIndex = lazy(() => import('./pages/training/index'));
+const TrainingQualities = lazy(() => import('./pages/training/qualities'));
+const TrainingGames = lazy(() => import('./pages/training/games'));
+const TrainingPlans = lazy(() => import('./pages/training/plans'));
 
 function AppRoutes() {
   return (
@@ -36,6 +40,12 @@ function AppRoutes() {
         <Route path="templates">
           <Route index element={<TemplatesIndex />} />
           <Route path="new" element={<TemplateNew />} />
+        </Route>
+        <Route path="training">
+          <Route index element={<TrainingIndex />} />
+          <Route path="qualities" element={<TrainingQualities />} />
+          <Route path="games" element={<TrainingGames />} />
+          <Route path="plans" element={<TrainingPlans />} />
         </Route>
         <Route path="assessments" element={<AssessmentsIndex />} />
         <Route path="finance" element={<FinanceIndex />} />

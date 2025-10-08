@@ -7,7 +7,10 @@ import type {
   FitnessTestResult,
   RankExamRecord,
   LessonPackage,
-  PaymentRecord
+  PaymentRecord,
+  Drill,
+  GameItem,
+  TrainingPlan
 } from '../types/models';
 
 export class AppDB extends Dexie {
@@ -19,10 +22,13 @@ export class AppDB extends Dexie {
   rankExams!: Table<RankExamRecord, string>;
   lessonPackages!: Table<LessonPackage, string>;
   payments!: Table<PaymentRecord, string>;
+  drills!: Table<Drill, string>;
+  games!: Table<GameItem, string>;
+  plans!: Table<TrainingPlan, string>;
 
   constructor() {
     super('jumpRopeDB');
-    this.version(1).stores({
+    this.version(2).stores({
       students: 'id, name, currentRank',
       classes: 'id, name',
       templates: 'id, name, period',
@@ -30,7 +36,10 @@ export class AppDB extends Dexie {
       tests: 'id, studentId, quarter, date',
       rankExams: 'id, studentId, date',
       lessonPackages: 'id, studentId, purchasedAt',
-      payments: 'id, studentId, paidAt'
+      payments: 'id, studentId, paidAt',
+      drills: 'id, stage, [stage+name]',
+      games: 'id, stage, [stage+name]',
+      plans: 'id, stage, weeks, name'
     });
   }
 }

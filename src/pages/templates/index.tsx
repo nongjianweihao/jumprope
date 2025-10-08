@@ -1,13 +1,31 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { templatesRepo } from '../../store/repositories/templatesRepo';
+import { drillsRepo } from '../../store/repositories/drillsRepo';
+import { gamesRepo } from '../../store/repositories/gamesRepo';
 import type { TrainingTemplate } from '../../types/models';
 
 export default function TemplatesIndex() {
   const [templates, setTemplates] = useState<TrainingTemplate[]>([]);
+  const [drillMap, setDrillMap] = useState<Record<string, string>>({});
+  const [gameMap, setGameMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     templatesRepo.list().then(setTemplates);
+    drillsRepo.list().then((rows) => {
+      const map: Record<string, string> = {};
+      rows.forEach((row) => {
+        map[row.id] = row.name;
+      });
+      setDrillMap(map);
+    });
+    gamesRepo.list().then((rows) => {
+      const map: Record<string, string> = {};
+      rows.forEach((row) => {
+        map[row.id] = row.name;
+      });
+      setGameMap(map);
+    });
   }, []);
 
   const avgDuration = useMemo(() => {
@@ -46,11 +64,25 @@ export default function TemplatesIndex() {
             </div>
             <ul className="mt-4 space-y-2 text-sm">
               {template.blocks.map((block) => (
-                <li key={block.id} className="rounded-xl bg-slate-50 px-3 py-2">
+                <li key={block.id} className="space-y-1 rounded-xl bg-slate-50 px-3 py-2">
                   <div className="font-medium">{block.title}</div>
                   <div className="text-xs text-slate-500">
                     {block.durationMin ?? 0} 分钟 · {block.period}
                   </div>
+                  {(block.drillIds?.length || block.gameIds?.length) && (
+                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
+                      {block.drillIds?.map((id) => (
+                        <span key={id} className="rounded-full bg-white px-2 py-0.5 shadow" title={drillMap[id] ?? id}>
+                          🏋️ {drillMap[id] ?? id}
+                        </span>
+                      ))}
+                      {block.gameIds?.map((id) => (
+                        <span key={id} className="rounded-full bg-white px-2 py-0.5 shadow" title={gameMap[id] ?? id}>
+                          🎮 {gameMap[id] ?? id}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

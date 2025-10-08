@@ -3,6 +3,7 @@ export type ISODate = string;
 export type Period = 'PREP' | 'SPEC' | 'COMP';
 export type WindowSec = 10 | 20 | 30 | 60;
 export type JumpMode = 'single' | 'double';
+export type TrainingStage = 'BASIC' | 'IMPROVE' | 'ELITE' | 'COMPETE';
 export type FitnessQuality =
   | 'speed'
   | 'power'
@@ -43,6 +44,7 @@ export interface TemplateBlock {
   title: string;
   period: Period;
   durationMin?: number;
+  drillIds?: ID[];
   rankMoveIds?: ID[];
   qualities?: FitnessQuality[];
   gameIds?: ID[];
@@ -57,6 +59,56 @@ export interface TrainingTemplate {
   durationMinTotal?: number;
   blocks: TemplateBlock[];
   createdAt: ISODate;
+}
+
+export interface Drill {
+  id: ID;
+  name: string;
+  stage: TrainingStage;
+  qualities: FitnessQuality[];
+  difficulty?: 1 | 2 | 3 | 4 | 5;
+  equipment?: string[];
+  durationMin?: number;
+  description?: string;
+  cues?: string[];
+  progressions?: string[];
+  gameable?: boolean;
+}
+
+export interface GameItem {
+  id: ID;
+  name: string;
+  stage: TrainingStage;
+  qualities: FitnessQuality[];
+  minPlayers?: number;
+  maxPlayers?: number;
+  durationMin?: number;
+  intensity?: 'low' | 'mid' | 'high';
+  rules?: string;
+  scoring?: string;
+  safetyNotes?: string;
+}
+
+export interface TrainingPlanWeek {
+  weekIndex: number;
+  theme: string;
+  blocks: Array<{
+    title: string;
+    durationMin?: number;
+    drillIds?: ID[];
+    gameIds?: ID[];
+    notes?: string;
+  }>;
+}
+
+export interface TrainingPlan {
+  id: ID;
+  name: string;
+  stage: TrainingStage;
+  weeks: number;
+  schedule: TrainingPlanWeek[];
+  createdAt: ISODate;
+  remark?: string;
 }
 
 export interface Student {
