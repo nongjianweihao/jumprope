@@ -1,0 +1,4 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export function Leaderboard({ items }) {
+    return (_jsxs("div", { className: "rounded-3xl border border-white/10 bg-white/5 p-6 text-white backdrop-blur", children: [_jsx("h3", { className: "text-2xl font-black tracking-wide", children: "\u79EF\u5206\u699C" }), _jsx("ol", { className: "mt-4 space-y-3", children: items.map((item, idx) => (_jsxs("li", { className: "flex items-center justify-between text-lg", children: [_jsxs("span", { className: "flex items-center gap-3 font-semibold", children: [_jsxs("span", { className: "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm", children: ["#", idx + 1] }), item.name] }), _jsx("span", { className: "tabular-nums text-2xl font-black text-brand-secondary", children: item.points })] }, item.id))) })] }));
+}

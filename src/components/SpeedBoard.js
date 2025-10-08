@@ -1,0 +1,4 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export function SpeedBoard({ windowLabel, items }) {
+    return (_jsxs("div", { className: "rounded-3xl border border-white/10 bg-white/5 p-6 text-white backdrop-blur", children: [_jsx("div", { className: "text-sm uppercase tracking-[0.5em] text-white/60", children: windowLabel }), _jsx("h3", { className: "mt-2 text-2xl font-black", children: "\u901F\u5EA6\u699C" }), _jsx("ul", { className: "mt-4 space-y-3 text-lg", children: items.map((item) => (_jsxs("li", { className: "flex items-center justify-between", children: [_jsx("span", { className: "font-semibold", children: item.name }), _jsxs("span", { className: "flex items-center gap-2", children: [_jsx("span", { className: "tabular-nums text-2xl font-black", children: item.reps }), item.isPr ? _jsx("span", { className: "rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-amber-900", children: "PR" }) : null] })] }, item.id))) })] }));
+}
