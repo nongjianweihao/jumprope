@@ -1,4 +1,0 @@
-[
-  { "id": "speed-6-8", "quality": "speed", "ageMin": 6, "ageMax": 8, "gender": "all", "unit": "count", "p25": 80, "p50": 100, "p75": 120 },
-  { "id": "endurance-6-8", "quality": "endurance", "ageMin": 6, "ageMax": 8, "gender": "all", "unit": "count", "p25": 40, "p50": 55, "p75": 70 }
-]
