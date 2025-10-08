@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 const links = [
   { to: '/classes', label: '班级' },
@@ -13,8 +14,16 @@ const links = [
 ];
 
 export function NavigationMenu() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <nav className="flex flex-wrap gap-3 text-sm">
+    <nav className="flex flex-wrap items-center gap-3 text-sm">
       {links.map((link) => (
         <NavLink
           key={link.to}
@@ -26,6 +35,15 @@ export function NavigationMenu() {
           {link.label}
         </NavLink>
       ))}
+      <div className="ml-2 flex items-center gap-2 border-l border-slate-300 pl-3">
+        <span className="text-xs text-slate-500">{user?.username}</span>
+        <button
+          onClick={handleLogout}
+          className="rounded-full bg-red-500 px-3 py-1 text-white transition-colors hover:bg-red-600"
+        >
+          退出
+        </button>
+      </div>
     </nav>
   );
 }
