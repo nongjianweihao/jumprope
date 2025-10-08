@@ -1,11 +1,11 @@
 import type { FitnessQuality, Student } from '../types/models';
-
-export const SPEED_THRESHOLDS = [60, 70, 80, 100, 110, 120, 150, 160, 170];
+import { getSpeedThresholds } from '../store/publicLibrary';
 
 export function evalSpeedRank(best30Single: number) {
+  const thresholds = getSpeedThresholds();
   let rank = 0;
-  for (let i = 0; i < SPEED_THRESHOLDS.length; i += 1) {
-    if (best30Single >= SPEED_THRESHOLDS[i]) {
+  for (let i = 0; i < thresholds.length; i += 1) {
+    if (best30Single >= thresholds[i]) {
       rank = i + 1;
     }
   }

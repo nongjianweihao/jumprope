@@ -22,6 +22,7 @@ import { RankBadge } from '../../components/RankBadge';
 import { PointsTicker } from '../../components/PointsTicker';
 import { nanoid } from '../../utils/id';
 import { evalSpeedRank } from '../../utils/calc';
+import { getRankMoves } from '../../store/publicLibrary';
 
 export default function SessionPanel() {
   const params = useParams();
@@ -54,15 +55,7 @@ export default function SessionPanel() {
   }, [students]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const raw = window.localStorage.getItem('public_library');
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw);
-      setMoves(Array.isArray(parsed?.rank_moves) ? parsed.rank_moves : []);
-    } catch (error) {
-      console.error('Failed to parse public library', error);
-    }
+    setMoves(getRankMoves());
   }, []);
 
   const handleSpeed = async (records: SpeedRecord[]) => {
@@ -93,10 +86,39 @@ export default function SessionPanel() {
     }
   };
 
-  const handleFreestyle = (records: FreestyleChallengeRecord[]) => {
+  const handleFreestyle = async (records: FreestyleChallengeRecord[]) => {
+    const prevMap = new Map(freestyle.map((item) => [item.id, item]));
     setFreestyle(records);
-    if (records.length) {
-      setHighlights((prev) => Array.from(new Set([...prev, '花样挑战通关'])));
+    for (const rec of records) {
+      if (!rec.passed) continue;
+      const previous = prevMap.get(rec.id);
+      if (previous?.passed) continue;
+
+      const move = moves.find((m) => m.id === rec.moveId);
+      if (!move) continue;
+
+      const studentRecord = await studentsRepo.get(rec.studentId);
+      if (!studentRecord) continue;
+
+      const before = studentRecord.currentRank ?? 0;
+      const after = move.rank > before ? move.rank : before;
+
+      const updated: Student = {
+        ...studentRecord,
+        currentRank: after,
+        pointsTotal: (studentRecord.pointsTotal ?? 0) + 3
+      };
+      await studentsRepo.upsert(updated);
+
+      setStudents((prev) => prev.map((s) => (s.id === updated.id ? { ...s, ...updated } : s)));
+      setHighlights((prev) =>
+        Array.from(
+          new Set([
+            ...prev,
+            `花样通关：L${move.rank} · ${move.name}` + (after > before ? `（段位↑ 到 L${after}）` : '')
+          ])
+        )
+      );
       setPointDelta((prev) => prev + 3);
     }
   };
