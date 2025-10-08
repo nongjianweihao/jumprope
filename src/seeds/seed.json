@@ -1,0 +1,38 @@
+{
+  "students": [
+    {
+      "id": "stu-001",
+      "name": "林小勇",
+      "currentRank": 3,
+      "pointsTotal": 128,
+      "badges": ["bronze_attendance", "silver_pr_star"],
+      "joinDate": "2024-09-01"
+    }
+  ],
+  "classes": [
+    {
+      "id": "class-001",
+      "name": "春季基础班",
+      "coachName": "Alex",
+      "templateId": "tpl-base-a",
+      "studentIds": ["stu-001"]
+    }
+  ],
+  "templates": [
+    {
+      "id": "tpl-base-a",
+      "name": "基础准备课 A",
+      "period": "PREP",
+      "durationMinTotal": 75,
+      "blocks": [
+        { "id": "b1", "title": "热身激活", "period": "PREP", "durationMin": 10 },
+        { "id": "b2", "title": "基础单摇", "period": "PREP", "durationMin": 15 },
+        { "id": "b3", "title": "步法协调", "period": "SPEC", "durationMin": 10 },
+        { "id": "b4", "title": "花样体验", "period": "SPEC", "durationMin": 15 },
+        { "id": "b5", "title": "体能循环", "period": "SPEC", "durationMin": 15 },
+        { "id": "b6", "title": "放松反馈", "period": "PREP", "durationMin": 10 }
+      ],
+      "createdAt": "2024-12-01T00:00:00.000Z"
+    }
+  ]
+}
