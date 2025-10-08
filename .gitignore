@@ -4,3 +4,11 @@ dist/
 .DS_Store
 npm-debug.log*
 
+# TypeScript build artifacts
+*.js
+*.d.ts
+*.tsbuildinfo
+!vite.config.ts
+!tailwind.config.ts
+!postcss.config.cjs
+
